@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe Event::Search do
+describe Event::Search, :type => :model do
   describe "by keyword" do
     it "should be able to only return events that include a specific keyword" do
       events = double
-      Event.should_receive(:search).with("myquery", skip_old: false, order: "date").and_return(events)
+      expect(Event).to receive(:search).with("myquery", skip_old: false, order: "date").and_return(events)
 
       subject = Event::Search.new query: "myquery"
       expect(subject.events).to eq events
@@ -12,7 +12,7 @@ describe Event::Search do
 
     it "should be able to only return current events" do
       events = double
-      Event.should_receive(:search).with("myquery", order: "date", skip_old: true).and_return(events)
+      expect(Event).to receive(:search).with("myquery", order: "date", skip_old: true).and_return(events)
 
       subject = Event::Search.new query: "myquery", current: "1"
       expect(subject.events).to eq events
@@ -28,7 +28,7 @@ describe Event::Search do
   describe "by tag" do
     it "should be able to only return events matching specific tag" do
       events = double
-      Event.should_receive(:search_tag).with("foo", current: false, order: "date").and_return(events)
+      expect(Event).to receive(:search_tag).with("foo", current: false, order: "date").and_return(events)
 
       subject = Event::Search.new tag: "foo"
       expect(subject.events).to eq events
@@ -52,7 +52,7 @@ describe Event::Search do
       past_event = double(:event, current?: false)
       current_event = double(:event, current?: true)
       events = [past_event, current_event]
-      Event.should_receive(:search).and_return(events)
+      expect(Event).to receive(:search).and_return(events)
 
       expect(subject.grouped_events).to be == {
         past: [past_event],
@@ -64,7 +64,7 @@ describe Event::Search do
       past_event = double(:event, current?: false)
       current_event = double(:event, current?: true)
       events = [past_event, current_event]
-      Event.should_receive(:search).and_return(events)
+      expect(Event).to receive(:search).and_return(events)
 
       expect(subject = Event::Search.new(current: "true").grouped_events).to be == {
         past: [],
@@ -76,7 +76,7 @@ describe Event::Search do
       current_event = double(:event, current?: true)
       past_event = double(:event, current?: false)
       other_past_event = double(:event, current?: false)
-      Event.should_receive(:search).and_return([current_event, past_event, other_past_event])
+      expect(Event).to receive(:search).and_return([current_event, past_event, other_past_event])
       expect(Event::Search.new(order: "date").grouped_events).to be == {
         current: [current_event],
         past:    [past_event, other_past_event],

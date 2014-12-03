@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SourcesController do
+describe SourcesController, :type => :controller do
   describe "using import logic" do
     before(:each) do
       @venue = mock_model(Venue,
@@ -19,11 +19,11 @@ describe SourcesController do
         :duplicate_of_id => nil)
 
       @source = Source.new(:url => "http://my.url/")
-      @source.stub(:save!).and_return(true)
-      @source.stub(:to_events).and_return([@event])
+      allow(@source).to receive(:save!).and_return(true)
+      allow(@source).to receive(:to_events).and_return([@event])
 
-      Source.stub(:new).and_return(@source)
-      Source.stub(:find_or_create_by_url).and_return(@source)
+      allow(Source).to receive(:new).and_return(@source)
+      allow(Source).to receive(:find_or_create_by_url).and_return(@source)
     end
 
     it "should provide a way to create new sources" do
@@ -36,7 +36,7 @@ describe SourcesController do
       render_views
 
       it "should save the source object when creating events" do
-        @source.should_receive(:save!)
+        expect(@source).to receive(:save!)
         post :import, :source => {:url => @source.url}
         expect(flash[:success]).to match /Imported/i
       end
@@ -45,19 +45,19 @@ describe SourcesController do
         excess = 5
         events = (1..(5+excess))\
           .inject([]){|result,i| result << @event; result}
-        @source.should_receive(:to_events).and_return(events)
+        expect(@source).to receive(:to_events).and_return(events)
         post :import, :source => {:url => @source.url}
         expect(flash[:success]).to match /And #{excess} other events/si
       end
     end
 
     it "should assign newly-created events to the source" do
-      @event.should_receive(:save!)
+      expect(@event).to receive(:save!)
       post :import, :source => {:url => @source.url}
     end
 
     it "should assign newly created venues to the source" do
-      @venue.should_receive(:save!)
+      expect(@venue).to receive(:save!)
       post :import, :source => {:url => @source.url}
     end
 
@@ -65,11 +65,11 @@ describe SourcesController do
     describe "is given problematic sources" do
       before do
         @source = stub_model(Source)
-        Source.should_receive(:find_or_create_from).and_return(@source)
+        expect(Source).to receive(:find_or_create_from).and_return(@source)
       end
 
       def assert_import_raises(exception)
-        @source.should_receive(:create_events!).and_raise(exception)
+        expect(@source).to receive(:create_events!).and_raise(exception)
         post :import, :source => {:url => "http://invalid.host"}
       end
 
@@ -100,7 +100,7 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source)
-      Source.stub(:listing).and_return([@source])
+      allow(Source).to receive(:listing).and_return([@source])
     end
 
     def do_get
@@ -118,7 +118,7 @@ describe SourcesController do
     end
 
     it "should find sources" do
-      Source.should_receive(:listing).and_return([@source])
+      expect(Source).to receive(:listing).and_return([@source])
       do_get
     end
 
@@ -132,7 +132,7 @@ describe SourcesController do
 
     before(:each) do
       @sources = double("Array of Sources", :to_xml => "XML")
-      Source.stub(:find).and_return(@sources)
+      allow(Source).to receive(:find).and_return(@sources)
     end
 
     def do_get
@@ -146,7 +146,7 @@ describe SourcesController do
     end
 
     it "should find all sources" do
-      Source.should_receive(:listing).and_return(@sources)
+      expect(Source).to receive(:listing).and_return(@sources)
       do_get
     end
 
@@ -158,7 +158,7 @@ describe SourcesController do
 
   describe "show" do
     it "should redirect when asked for unknown source" do
-      Source.should_receive(:find).and_raise(ActiveRecord::RecordNotFound.new)
+      expect(Source).to receive(:find).and_raise(ActiveRecord::RecordNotFound.new)
       get :show, :id => "1"
 
       expect(response).to be_redirect
@@ -169,7 +169,7 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source)
-      Source.stub(:find).and_return(@source)
+      allow(Source).to receive(:find).and_return(@source)
     end
 
     def do_get
@@ -187,7 +187,7 @@ describe SourcesController do
     end
 
     it "should find the source requested" do
-      Source.should_receive(:find).with("1", :include => [:events, :venues]).and_return(@source)
+      expect(Source).to receive(:find).with("1", :include => [:events, :venues]).and_return(@source)
       do_get
     end
 
@@ -201,7 +201,7 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source, :to_xml => "XML")
-      Source.stub(:find).and_return(@source)
+      allow(Source).to receive(:find).and_return(@source)
     end
 
     def do_get
@@ -215,12 +215,12 @@ describe SourcesController do
     end
 
     it "should find the source requested" do
-      Source.should_receive(:find).with("1", :include => [:events, :venues]).and_return(@source)
+      expect(Source).to receive(:find).with("1", :include => [:events, :venues]).and_return(@source)
       do_get
     end
 
     it "should render the found source as xml" do
-      @source.should_receive(:to_xml).and_return("XML")
+      expect(@source).to receive(:to_xml).and_return("XML")
       do_get
       expect(response.body).to eq "XML"
     end
@@ -230,7 +230,7 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source)
-      Source.stub(:new).and_return(@source)
+      allow(Source).to receive(:new).and_return(@source)
     end
 
     def do_get
@@ -248,12 +248,12 @@ describe SourcesController do
     end
 
     it "should create an new source" do
-      Source.should_receive(:new).and_return(@source)
+      expect(Source).to receive(:new).and_return(@source)
       do_get
     end
 
     it "should not save the new source" do
-      @source.should_not_receive(:save)
+      expect(@source).not_to receive(:save)
       do_get
     end
 
@@ -267,7 +267,7 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source)
-      Source.stub(:find).and_return(@source)
+      allow(Source).to receive(:find).and_return(@source)
     end
 
     def do_get
@@ -285,7 +285,7 @@ describe SourcesController do
     end
 
     it "should find the source requested" do
-      Source.should_receive(:find).and_return(@source)
+      expect(Source).to receive(:find).and_return(@source)
       do_get
     end
 
@@ -299,18 +299,18 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source, :to_param => "1")
-      Source.stub(:new).and_return(@source)
+      allow(Source).to receive(:new).and_return(@source)
     end
 
     describe "with successful save" do
 
       def do_post
-        @source.should_receive(:update_attributes).and_return(true)
+        expect(@source).to receive(:update_attributes).and_return(true)
         post :create, :source => {}
       end
 
       it "should create a new source" do
-        Source.should_receive(:new).and_return(@source)
+        expect(Source).to receive(:new).and_return(@source)
         do_post
       end
 
@@ -324,8 +324,8 @@ describe SourcesController do
     describe "with failed save" do
 
       def do_post
-        @source.should_receive(:update_attributes).and_return(false)
-        @source.stub(new_record?: true)
+        expect(@source).to receive(:update_attributes).and_return(false)
+        allow(@source).to receive_messages(new_record?: true)
         post :create, :source => {}
       end
 
@@ -341,18 +341,18 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source, :to_param => "1")
-      Source.stub(:find).and_return(@source)
+      allow(Source).to receive(:find).and_return(@source)
     end
 
     describe "with successful update" do
 
       def do_put
-        @source.should_receive(:update_attributes).and_return(true)
+        expect(@source).to receive(:update_attributes).and_return(true)
         put :update, :id => "1"
       end
 
       it "should find the source requested" do
-        Source.should_receive(:find).with("1").and_return(@source)
+        expect(Source).to receive(:find).with("1").and_return(@source)
         do_put
       end
 
@@ -376,7 +376,7 @@ describe SourcesController do
     describe "with failed update" do
 
       def do_put
-        @source.should_receive(:update_attributes).and_return(false)
+        expect(@source).to receive(:update_attributes).and_return(false)
         put :update, :id => "1"
       end
 
@@ -392,7 +392,7 @@ describe SourcesController do
 
     before(:each) do
       @source = mock_model(Source, :destroy => true)
-      Source.stub(:find).and_return(@source)
+      allow(Source).to receive(:find).and_return(@source)
     end
 
     def do_delete
@@ -400,12 +400,12 @@ describe SourcesController do
     end
 
     it "should find the source requested" do
-      Source.should_receive(:find).with("1").and_return(@source)
+      expect(Source).to receive(:find).with("1").and_return(@source)
       do_delete
     end
 
     it "should call destroy on the found source" do
-      @source.should_receive(:destroy)
+      expect(@source).to receive(:destroy)
       do_delete
     end
 

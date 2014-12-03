@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ApplicationHelper do
+describe ApplicationHelper, :type => :helper do
   describe "when escaping HTML while preserving entities (cleanse)" do
     it "should preserve plain text" do
       expect(cleanse("Allison to Lillia")).to eq "Allison to Lillia"
@@ -51,22 +51,22 @@ describe ApplicationHelper do
 
   describe "the source code version date" do
     it "returns the timestamp from git" do
-      ApplicationHelper.should_receive(:system).with(/git/).and_return(true)
-      ApplicationHelper.should_receive(:`).with(/git/).and_return("Tue Jul 29 01:22:49 2014 -0700")
+      expect(ApplicationHelper).to receive(:system).with(/git/).and_return(true)
+      expect(ApplicationHelper).to receive(:`).with(/git/).and_return("Tue Jul 29 01:22:49 2014 -0700")
       expect(ApplicationHelper.source_code_version_raw).to match(/Git timestamp: Tue Jul 29 01:22:49 2014 -0700/)
     end
 
     describe "when the git command can't be found" do
       it "returns empty string" do
-        ApplicationHelper.should_receive(:system).with(/git/).and_return(true)
-        ApplicationHelper.should_receive(:`).with(/git/).and_raise(Errno::ENOENT)
+        expect(ApplicationHelper).to receive(:system).with(/git/).and_return(true)
+        expect(ApplicationHelper).to receive(:`).with(/git/).and_raise(Errno::ENOENT)
         expect(ApplicationHelper.source_code_version_raw).to eq ""
       end
     end
 
     describe "when the git command returns a non-zero exit status" do
       it "returns empty string" do
-        ApplicationHelper.should_receive(:system).with(/git/).and_return(false)
+        expect(ApplicationHelper).to receive(:system).with(/git/).and_return(false)
         expect(ApplicationHelper.source_code_version_raw).to eq ""
       end
     end
@@ -76,7 +76,7 @@ describe ApplicationHelper do
     it "constructs a sentence describing the item's history" do
       event = FactoryGirl.create(:event, created_at: "2010-01-01", updated_at: "2010-01-02")
       event.create_source! title: "google", url: "http://google.com"
-      event.source.stub id: 1
+      allow(event.source).to receive_messages id: 1
       expect(datestamp(event)).to eq \
         %(This item was imported from <a href="/sources/1">google</a> <br />) +
         %(<strong>Friday, January 1, 2010 at midnight</strong> ) +

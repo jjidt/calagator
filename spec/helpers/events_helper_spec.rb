@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe EventsHelper do
+describe EventsHelper, :type => :helper do
   describe "#icon_exists_for?" do
     it "should return true if there is a PNG file in tag_icons with the name of the argument" do
       expect(helper.icon_exists_for?("pizza")).to eq true

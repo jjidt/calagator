@@ -42,8 +42,8 @@ describe BlacklistValidator do
 
   describe "created with custom blacklist file" do
     before do
-      BlacklistValidator.any_instance.should_receive(:get_blacklist_patterns_from).with("blacklist.txt").and_return([])
-      BlacklistValidator.any_instance.should_receive(:get_blacklist_patterns_from).with("blacklist-local.txt").and_return([/Kltpzyxm/i])
+      expect_any_instance_of(BlacklistValidator).to receive(:get_blacklist_patterns_from).with("blacklist.txt").and_return([])
+      expect_any_instance_of(BlacklistValidator).to receive(:get_blacklist_patterns_from).with("blacklist-local.txt").and_return([/Kltpzyxm/i])
     end
 
     it "should be valid when clean" do

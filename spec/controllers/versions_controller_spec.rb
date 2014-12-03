@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe VersionsController do
+describe VersionsController, :type => :controller do
   describe "without versions" do
     it "should raise RecordNotFound if not given an id" do
       expect(lambda { get :edit, :id => '' }).to raise_error ActiveRecord::RecordNotFound

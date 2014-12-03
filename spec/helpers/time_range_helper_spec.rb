@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Time formatting" do
+describe "Time formatting", :type => :helper do
   before(:each) do
     @start_time = DateTime.new(2008, 4, 1, 9, 00)
   end

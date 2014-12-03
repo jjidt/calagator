@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Venue::Search do
+describe Venue::Search, :type => :model do
   describe "#venues" do
     before do
       @open_venue = FactoryGirl.create(:venue, title: 'Open Town', description: 'baz', wifi: false, tag_list: %w(foo))

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require './spec/controllers/squash_many_duplicates_examples'
 
-describe VenuesController do
+describe VenuesController, :type => :controller do
   render_views
 
   it "should redirect duplicate venues to their master" do
@@ -139,7 +139,7 @@ describe VenuesController do
       describe "with events" do
         before do
           @venue = FactoryGirl.build(:venue, :id => 123)
-          Venue.stub(:find).and_return(@venue)
+          allow(Venue).to receive(:find).and_return(@venue)
         end
 
         it "should produce JSON" do

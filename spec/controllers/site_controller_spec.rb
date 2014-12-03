@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SiteController do
+describe SiteController, :type => :controller do
   describe "#omfg" do
     it "raises an error" do
       expect(lambda { get :omfg }).to raise_exception(ArgumentError, "OMFG")

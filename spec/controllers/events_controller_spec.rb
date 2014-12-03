@@ -1,7 +1,7 @@
 require 'spec_helper'
 require './spec/controllers/squash_many_duplicates_examples'
 
-describe EventsController do
+describe EventsController, :type => :controller do
   describe "#index" do
     render_views
 
@@ -238,7 +238,7 @@ describe EventsController do
 
           it "should use the default if given an invalid parameter" do
             get :index, :date => {date_kind => "omgkittens"}
-            assigns[date_field].should eq send(date_field)
+            expect(assigns[date_field]).to eq send(date_field)
             expect(response.body).to have_selector(".flash_failure", text: 'invalid')
           end
 
@@ -282,7 +282,7 @@ describe EventsController do
         results = assigns[:events]
 
         # Then
-        results.size.should eq 2
+        expect(results.size).to eq 2
         expect(results).to eq matching
       end
     end
@@ -291,7 +291,7 @@ describe EventsController do
   describe "#show" do
     it "should show an event" do
       event = Event.new(:start_time => now)
-      Event.should_receive(:find).and_return(event)
+      expect(Event).to receive(:find).and_return(event)
 
       get "show", :id => 1234
       expect(response).to be_success
@@ -300,14 +300,14 @@ describe EventsController do
     it "should redirect from a duplicate event to its master" do
       master = FactoryGirl.create(:event, id: 4321)
       event = Event.new(:start_time => now, :duplicate_of => master)
-      Event.should_receive(:find).and_return(event)
+      expect(Event).to receive(:find).and_return(event)
 
       get "show", :id => 1234
       expect(response).to redirect_to(event_path(master))
     end
 
     it "should show an error when asked to display a non-existent event" do
-      Event.should_receive(:find).and_raise(ActiveRecord::RecordNotFound)
+      expect(Event).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
 
       get "show", :id => 1234
       expect(response).to redirect_to(events_path)
@@ -544,7 +544,7 @@ describe EventsController do
       before do
         @event = FactoryGirl.create(:event)
 
-        Event.stub(:find).and_return(@event)
+        allow(Event).to receive(:find).and_return(@event)
 
         get "clone", :id => 1
       end
@@ -737,13 +737,13 @@ describe EventsController do
 
       describe "failures" do
         it "sets search failures in the flash message" do
-          Event::Search.any_instance.stub failure_message: "OMG"
+          allow_any_instance_of(Event::Search).to receive_messages failure_message: "OMG"
           post :search
           expect(flash[:failure]).to eq "OMG"
         end
 
         it "redirects to home if hard failure" do
-          Event::Search.any_instance.stub hard_failure?: true
+          allow_any_instance_of(Event::Search).to receive_messages hard_failure?: true
           post :search
           expect(response).to redirect_to(root_path)
         end
@@ -754,8 +754,8 @@ describe EventsController do
   describe "#destroy" do
     it "should destroy events" do
       event = FactoryGirl.build(:event)
-      event.should_receive(:destroy)
-      Event.should_receive(:find).and_return(event)
+      expect(event).to receive(:destroy)
+      expect(Event).to receive(:find).and_return(event)
 
       delete 'destroy', :id => 1234
       expect(response).to redirect_to(events_url)

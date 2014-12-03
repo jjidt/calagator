@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Event::Overview do
+describe Event::Overview, :type => :model do
   describe "#times_to_events" do
     before do
       @today_midnight = today
