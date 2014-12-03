@@ -7,7 +7,7 @@ describe Event::Search do
       Event.should_receive(:search).with("myquery", skip_old: false, order: "date").and_return(events)
 
       subject = Event::Search.new query: "myquery"
-      subject.events.should == events
+      expect(subject.events).to eq events
     end
 
     it "should be able to only return current events" do
@@ -15,13 +15,13 @@ describe Event::Search do
       Event.should_receive(:search).with("myquery", order: "date", skip_old: true).and_return(events)
 
       subject = Event::Search.new query: "myquery", current: "1"
-      subject.events.should == events
+      expect(subject.events).to eq events
     end
 
     it "should warn if user tries ordering by invalid order" do
       subject = Event::Search.new query: "myquery", order: "kittens"
-      subject.failure_message.should == "Unknown ordering option \"kittens\", sorting by date instead."
-      subject.should_not be_hard_failure
+      expect(subject.failure_message).to eq "Unknown ordering option \"kittens\", sorting by date instead."
+      expect(subject).to_not be_hard_failure
     end
   end
 
@@ -31,19 +31,19 @@ describe Event::Search do
       Event.should_receive(:search_tag).with("foo", current: false, order: "date").and_return(events)
 
       subject = Event::Search.new tag: "foo"
-      subject.events.should == events
+      expect(subject.events).to eq events
     end
 
     it "should warn if user tries ordering by invalid order" do
       subject = Event::Search.new tag: "omg", order: "kittens"
-      subject.failure_message.should == "Unknown ordering option \"kittens\", sorting by date instead."
-      subject.should_not be_hard_failure
+      expect(subject.failure_message).to eq "Unknown ordering option \"kittens\", sorting by date instead."
+      expect(subject).to_not be_hard_failure
     end
 
     it "should warn if user tries ordering tags by score" do
       subject = Event::Search.new tag: "omg", order: "score"
-      subject.failure_message.should == "You cannot sort tags by score"
-      subject.should_not be_hard_failure
+      expect(subject.failure_message).to eq "You cannot sort tags by score"
+      expect(subject).to_not be_hard_failure
     end
   end
 
@@ -54,7 +54,7 @@ describe Event::Search do
       events = [past_event, current_event]
       Event.should_receive(:search).and_return(events)
 
-      subject.grouped_events.should == {
+      expect(subject.grouped_events).to be == {
         past: [past_event],
         current: [current_event],
       }
@@ -66,7 +66,7 @@ describe Event::Search do
       events = [past_event, current_event]
       Event.should_receive(:search).and_return(events)
 
-      subject = Event::Search.new(current: "true").grouped_events.should == {
+      expect(subject = Event::Search.new(current: "true").grouped_events).to be == {
         past: [],
         current: [current_event],
       }
@@ -77,23 +77,23 @@ describe Event::Search do
       past_event = double(:event, current?: false)
       other_past_event = double(:event, current?: false)
       Event.should_receive(:search).and_return([current_event, past_event, other_past_event])
-      Event::Search.new(order: "date").grouped_events.should eq({
+      expect(Event::Search.new(order: "date").grouped_events).to be == {
         current: [current_event],
         past:    [past_event, other_past_event],
-      })
+      }
     end
   end
 
   describe "hard failures" do
     it "should hard fail if given no search query" do
-      subject.failure_message.should == "You must enter a search query"
-      subject.should be_hard_failure
+      expect(subject.failure_message).to eq "You must enter a search query"
+      expect(subject).to be_hard_failure
     end
 
     it "should hard fail if searching by both query and tag" do
       subject = Event::Search.new query: "omg", tag: "bbq"
-      subject.failure_message.should == "You can't search by tag and query at the same time"
-      subject.should be_hard_failure
+      expect(subject.failure_message).to eq "You can't search by tag and query at the same time"
+      expect(subject).to be_hard_failure
     end
   end
 end
