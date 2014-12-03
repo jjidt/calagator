@@ -28,8 +28,8 @@ describe SourcesController do
 
     it "should provide a way to create new sources" do
       get :new
-      assigns(:source).should be_a_kind_of Source
-      assigns(:source).should be_a_new_record
+      expect(assigns(:source)).to be_a_kind_of Source
+      expect(assigns(:source)).to be_a_new_record
     end
 
     describe "with render views" do
@@ -38,7 +38,7 @@ describe SourcesController do
       it "should save the source object when creating events" do
         @source.should_receive(:save!)
         post :import, :source => {:url => @source.url}
-        flash[:success].should match /Imported/i
+        expect(flash[:success]).to match /Imported/i
       end
 
       it "should limit the number of created events to list in the flash" do
@@ -47,7 +47,7 @@ describe SourcesController do
           .inject([]){|result,i| result << @event; result}
         @source.should_receive(:to_events).and_return(events)
         post :import, :source => {:url => @source.url}
-        flash[:success].should match /And #{excess} other events/si
+        expect(flash[:success]).to match /And #{excess} other events/si
       end
     end
 
@@ -75,22 +75,22 @@ describe SourcesController do
 
       it "should fail when host responds with an error" do
         assert_import_raises(OpenURI::HTTPError.new("omfg", "bbq"))
-        flash[:failure].should match /Couldn't download events/
+        expect(flash[:failure]).to match /Couldn't download events/
       end
 
       it "should fail when host is not responding" do
         assert_import_raises(Errno::EHOSTUNREACH.new("omfg"))
-        flash[:failure].should match /Couldn't connect to remote site/
+        expect(flash[:failure]).to match /Couldn't connect to remote site/
       end
 
       it "should fail when host is not found" do
         assert_import_raises(SocketError.new("omfg"))
-        flash[:failure].should match /Couldn't find IP address for remote site/
+        expect(flash[:failure]).to match /Couldn't find IP address for remote site/
       end
 
       it "should fail when host requires authentication" do
         assert_import_raises(SourceParser::HttpAuthenticationRequiredError.new("omfg"))
-        flash[:failure].should match /requires authentication/
+        expect(flash[:failure]).to match /requires authentication/
       end
     end
   end
@@ -109,12 +109,12 @@ describe SourcesController do
 
     it "should be successful" do
       do_get
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "should render index template" do
       do_get
-      response.should render_template :index
+      expect(response).to render_template :index
     end
 
     it "should find sources" do
@@ -124,7 +124,7 @@ describe SourcesController do
 
     it "should assign the found sources for the view" do
       do_get
-      assigns[:sources].should eq [@source]
+      expect(assigns[:sources]).to eq [@source]
     end
   end
 
@@ -142,7 +142,7 @@ describe SourcesController do
 
     it "should be successful" do
       do_get
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "should find all sources" do
@@ -152,7 +152,7 @@ describe SourcesController do
 
     it "should render the found sources as xml" do
       do_get
-      response.content_type.should eq 'application/xml'
+      expect(response.content_type).to eq 'application/xml'
     end
   end
 
@@ -161,7 +161,7 @@ describe SourcesController do
       Source.should_receive(:find).and_raise(ActiveRecord::RecordNotFound.new)
       get :show, :id => "1"
 
-      response.should be_redirect
+      expect(response).to be_redirect
     end
   end
 
@@ -178,12 +178,12 @@ describe SourcesController do
 
     it "should be successful" do
       do_get
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "should render show template" do
       do_get
-      response.should render_template :show
+      expect(response).to render_template :show
     end
 
     it "should find the source requested" do
@@ -193,7 +193,7 @@ describe SourcesController do
 
     it "should assign the found source for the view" do
       do_get
-      assigns[:source].should eq @source
+      expect(assigns[:source]).to eq @source
     end
   end
 
@@ -211,7 +211,7 @@ describe SourcesController do
 
     it "should be successful" do
       do_get
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "should find the source requested" do
@@ -222,7 +222,7 @@ describe SourcesController do
     it "should render the found source as xml" do
       @source.should_receive(:to_xml).and_return("XML")
       do_get
-      response.body.should eq "XML"
+      expect(response.body).to eq "XML"
     end
   end
 
@@ -239,12 +239,12 @@ describe SourcesController do
 
     it "should be successful" do
       do_get
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "should render new template" do
       do_get
-      response.should render_template :new
+      expect(response).to render_template :new
     end
 
     it "should create an new source" do
@@ -259,7 +259,7 @@ describe SourcesController do
 
     it "should assign the new source for the view" do
       do_get
-      assigns[:source].should eq @source
+      expect(assigns[:source]).to eq @source
     end
   end
 
@@ -276,12 +276,12 @@ describe SourcesController do
 
     it "should be successful" do
       do_get
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "should render edit template" do
       do_get
-      response.should render_template :edit
+      expect(response).to render_template :edit
     end
 
     it "should find the source requested" do
@@ -291,7 +291,7 @@ describe SourcesController do
 
     it "should assign the found Source for the view" do
       do_get
-      assigns[:source].should eq @source
+      expect(assigns[:source]).to eq @source
     end
   end
 
@@ -316,7 +316,7 @@ describe SourcesController do
 
       it "should redirect to the new source" do
         do_post
-        response.should redirect_to(source_url("1"))
+        expect(response).to redirect_to(source_url("1"))
       end
 
     end
@@ -331,7 +331,7 @@ describe SourcesController do
 
       it "should re-render 'new'" do
         do_post
-        response.should render_template :new
+        expect(response).to render_template :new
       end
 
     end
@@ -358,17 +358,17 @@ describe SourcesController do
 
       it "should update the found source" do
         do_put
-        assigns(:source).should eq @source
+        expect(assigns(:source)).to eq @source
       end
 
       it "should assign the found source for the view" do
         do_put
-        assigns(:source).should eq @source
+        expect(assigns(:source)).to eq @source
       end
 
       it "should redirect to the source" do
         do_put
-        response.should redirect_to(source_url("1"))
+        expect(response).to redirect_to(source_url("1"))
       end
 
     end
@@ -382,7 +382,7 @@ describe SourcesController do
 
       it "should re-render 'edit'" do
         do_put
-        response.should render_template :edit
+        expect(response).to render_template :edit
       end
 
     end
@@ -411,7 +411,7 @@ describe SourcesController do
 
     it "should redirect to the sources list" do
       do_delete
-      response.should redirect_to(sources_url)
+      expect(response).to redirect_to(sources_url)
     end
   end
 end
