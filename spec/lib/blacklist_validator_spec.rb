@@ -15,12 +15,12 @@ describe BlacklistValidator do
   describe "with default blacklist" do
     it "should be valid when clean" do
       subject.title = "Title"
-      subject.should be_valid
+      expect(subject).to be_valid
     end
 
     it "should not be valid when it features blacklisted word" do
       subject.title = "Foo bar cialis"
-      subject.should_not be_valid
+      expect(subject).to_not be_valid
     end
   end
 
@@ -31,12 +31,12 @@ describe BlacklistValidator do
 
     it "should be valid when clean" do
       subject.title = "Title"
-      subject.should be_valid
+      expect(subject).to be_valid
     end
 
     it "should not be valid when it features custom blacklisted word" do
       subject.title = "fooKLTPZYXMbar"
-      subject.should_not be_valid
+      expect(subject).to_not be_valid
     end
   end
 
@@ -48,12 +48,12 @@ describe BlacklistValidator do
 
     it "should be valid when clean" do
       subject.title = "Title"
-      subject.should be_valid
+      expect(subject).to be_valid
     end
 
     it "should not be valid when it features custom blacklisted word" do
       subject.title = "fooKLTPZYXMbar"
-      subject.should_not be_valid
+      expect(subject).to_not be_valid
     end
   end
 end
